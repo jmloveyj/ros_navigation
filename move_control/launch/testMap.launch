@@ -27,7 +27,7 @@
         <param name="scale_angular" value= "0.6"/>
         <remap from="keyControl/cmd_vel" to="mobile_base/commands/velocity" />
     </node>
-         <node pkg="move_control" type="mapTest_vfh" name="mapTest_vfh" output="screen"></node>     
+         <node pkg="move_control" type="mapTest_graph" name="mapTest_vfh" output="screen"></node>     
     <!--<node pkg="move_control" type="showHist.py" name="showHist" output="screen"></node>-->
     <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find move_control)/nav.rviz"/>
 </launch>

@@ -136,10 +136,7 @@ include_directories(include
 # add_executable(follow_edge_node
 # src/follow_edge_node.cpp
 # src/range_sensor_helper_ros.cpp)
- add_executable(vfhNode src/vfh_node.cpp src/vfh_algorithm.cc)
-
- add_executable(vfhSonarNode src/vfh_sonar_node.cpp src/vfh_algorithm.cc)
- add_dependencies(vfhSonarNode custom_description_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+#  add_executable(vfhNode src/vfh_node.cpp src/vfh_algorithm.cc)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -151,9 +148,8 @@ target_link_libraries(keyControl
   ${catkin_LIBRARIES}
 )
 
-target_link_libraries(vfhNode  ${catkin_LIBRARIES})
+# target_link_libraries(vfhNode  ${catkin_LIBRARIES})
 
-target_link_libraries(vfhSonarNode  ${catkin_LIBRARIES})
 #target_link_libraries(follow_edge_node
 #  ${catkin_LIBRARIES}
 #)

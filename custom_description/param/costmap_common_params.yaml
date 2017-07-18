@@ -1,0 +1,71 @@
+# Specifies the delay in transform (tf) data that is tolerable in seconds. This parameter serves as a safeguard to losing a link in the tf tree while still allowing an amount of latency the user is comfortable with to exist in the system. For example, a transform being 0.2 seconds out-of-date may be tolerable, but a transform being 8 seconds out of date is not. If the tf transform between the coordinate frames specified by the global_frame and robot_base_frame parameters is transform_tolerance seconds older than ros::Time::now(), then the navigation stack will stop the robot.
+
+transform_tolerance: 1
+footprint: [[0.18, -0.13], [0.18, 0.13], [-0.13, 0.13], [-0.13, -0.13]]
+track_unknown_space: true
+
+obstacle_layer:
+  track_unknown_space: true
+  observation_sources:  scan bump
+  scan:
+    data_type: LaserScan
+    topic: scan
+    marking: true
+    clearing: true
+    obstacle_range: 4.5
+    raytrace_range: 5.0
+    min_obstacle_height: 0.1
+    max_obstacle_height: 0.3
+
+  bump:
+    data_type: PointCloud2
+    topic: mobile_base/sensors/bumper_pointcloud
+# How often to expect a reading from a sensor in seconds. A value of 0.0 will allow infinite time between readings. This parameter is used as a failsafe to keep the navigation stack from commanding the robot when a sensor has failed. It should be set to a value that is slightly more permissive than the actual rate of the sensor. For example, if we expect a scan from a laser every 0.05 seconds we might set this parameter to be 0.1 seconds to give a generous buffer and account for some amount of system latency.
+    expected_update_rate: 0
+    obstacle_range: 2.5
+    raytrace_range: 3.0
+    marking: true
+    clearing: false
+    min_obstacle_height: 0.0
+    max_obstacle_height: 2  #Don't do any filtering
+    
+    
+#   camera:
+#     data_type: PointCloud2
+#     topic: camera/depth/points
+# # How often to expect a reading from a sensor in seconds. A value of 0.0 will allow infinite time between readings. This parameter is used as a failsafe to keep the navigation stack from commanding the robot when a sensor has failed. It should be set to a value that is slightly more permissive than the actual rate of the sensor. For example, if we expect a scan from a laser every 0.05 seconds we might set this parameter to be 0.1 seconds to give a generous buffer and account for some amount of system latency.
+#     expected_update_rate: 0
+#     obstacle_range: 4
+#     raytrace_range: 6
+#     marking: true
+#     clearing: false
+#     min_obstacle_height: 0.1
+#     max_obstacle_height: 0.2  #Don't do any filtering 
+    
+
+
+
+
+#cost_scaling_factor and inflation_radius were now moved to the inflation_layer ns
+inflation_layer:
+  cost_scaling_factor:  10.0  # exponential rate at which the obstacle cost drops off (default: 10)
+  inflation_radius:     0.05  # max. distance from an obstacle at which costs are incurred for planning paths.
+
+static_layer:
+  map_topic: "map"
+  trinary_costmap: true 
+  subscribe_to_update: false
+
+range_sensor_layer:
+  topics: ['/front_range','/front_left_range','/front_right_range','/right_range','/wall_sensor_range']
+  no_readings_timeout: 0
+  clear_threshold: 0.1
+  mark_threshold: 0.8
+  input_sensor_type: ALL
+  clear_on_max_reading: true
+
+   
+
+
+  
+

@@ -1,0 +1,33 @@
+<launch>
+    <param name="/use_sim_time" value="true" />
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="use_sim_time" value="false" />
+        <arg name="debug" value="false" />
+              <arg name="world_name" value="$(find custom_description)/worlds/empty.world" />      
+             <!-- <arg name="world_name" value="$(find custom_description)/worlds/emptyRoom.world" />      -->
+    </include>
+    <include file="$(find custom_description)/launch/robot.launch.xml">
+          <!-- <arg name="urdf_file" value="$(find xacro)/xacro.py '$(find custom_description)/description/kobuki/urdf/kobuki_sonar_4.xacro'"/>   -->
+              <arg name="urdf_file" value="$(find xacro)/xacro.py '$(find custom_description)/description/kobuki/urdf/kobuki_standalone_kinect.urdf.xacro'"/>      
+            <!-- <arg name="urdf_file" value="$(find xacro)/xacro.py '$(find custom_description)/description/kobuki/urdf/kobuki_standalone_lidar.urdf.xacro'"/>        -->
+        <!-- <arg name="urdf_file" value="$(find xacro)/xacro.py '$(find custom_description)/description/kobuki/urdf/kobuki_sonar_kinect.urdf.xacro'"/> -->
+   
+    </include>
+    <node pkg="depthimage_to_laserscan" type ="depthimage_to_laserscan" name="depth2laser">
+        <param name="scan_height" value="20"/>
+        <param name="range_min" value="0.6"/>
+        <param name="range_max" value="6"/>
+        <remap from="image" to="camera/depth/image_raw"/>
+        <remap from="scan" to="laser_scan" />
+    </node>
+    
+
+    <node pkg="custom_description" type="keyControl" name="keyControl" launch-prefix="xterm -e">
+        <param name="scale_linear" value = "0.3"/>
+        <param name="scale_angular" value= "0.6"/>
+        <remap from="keyControl/cmd_vel" to="mobile_base/commands/velocity" />
+    </node>
+         <node pkg="move_control" type="mapTest_vfh" name="mapTest_vfh" output="screen"></node>     
+    <!--<node pkg="move_control" type="showHist.py" name="showHist" output="screen"></node>-->
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find move_control)/nav.rviz"/>
+</launch>

@@ -1,0 +1,3 @@
+<launch>
+ <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find custom_description)/nav.rviz"/>
+</launch>

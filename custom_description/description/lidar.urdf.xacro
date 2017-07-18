@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"> 
+<!-- RPLidar 2D LIDAR -->  
+<xacro:macro name="sensor_rplidar" params="*origin parent:=base_link max_range:=10.1">  
+    <joint name="laser" type="fixed">  
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}" />  
+      <child link="base_laser_link" />  
+    </joint>  
+  
+    <link name="base_laser_link">  
+      <visual>  
+        <geometry>  
+          <box size="0.05 0.05 0.05" />  
+        </geometry>  
+        <material name="Red" />  
+      </visual>  
+      <inertial>  
+        <mass value="0.000001" />  
+        <origin xyz="0 0 0" />  
+        <inertia ixx="0.0001" ixy="0.0" ixz="0.0"  
+          iyy="0.0001" iyz="0.0"  
+          izz="0.0001" />  
+      </inertial>  
+    </link>  
+  
+    <!-- Set up laser gazebo details -->  
+    <gazebo reference="base_laser_link">  
+      <sensor type="ray" name="laser">  
+        <pose>0 0 0 0 0 0</pose>  
+        <visualize>true</visualize>  
+        <update_rate>6</update_rate>  
+        <ray>  
+          <scan>  
+            <horizontal>  
+              <samples>360</samples>  
+              <resolution>1</resolution>  
+              <min_angle>-3.1415926</min_angle>  
+              <max_angle>3.1415926</max_angle>  
+            </horizontal>  
+          </scan>  
+          <range>  
+            <min>0.10</min>  
+            <max>${max_range}</max>  
+            <resolution>0.01</resolution>  
+          </range>  
+          <noise>  
+            <type>Gaussian</type>  
+            <mean>0.0</mean>  
+            <stddev>0.01</stddev>  
+          </noise>  
+        </ray>  
+        <plugin name="rplidar_node" filename="libgazebo_ros_laser.so">  
+          <topicName>/laser_scan</topicName>  
+          <frameName>base_laser_link</frameName>  
+        </plugin>  
+      </sensor>  
+    </gazebo>   
+  </xacro:macro>  
+</robot>

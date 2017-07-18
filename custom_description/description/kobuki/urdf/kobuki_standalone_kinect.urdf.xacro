@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot name="kobuki_standalone" 
+	xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor" 
+	xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller" 
+	xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface" 
+	xmlns:xacro="http://ros.org/wiki/xacro">
+	<!-- Defines the kobuki component tag. -->
+	<xacro:include filename="$(find custom_description)/description/kobuki/urdf/kobuki.urdf.xacro" />
+	<kobuki/>
+	<xacro:include filename="$(find custom_description)/description/kinect.urdf.xacro" />
+	<!--  camera -->
+	<sensor_kinect parent="base_link">
+		<origin xyz="-0.087 -0.0125 0.1" rpy="0 -0.4 0" />
+	</sensor_kinect>
+</robot>

@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<robot name="create_2" 
+  xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find custom_description)/description/create/urdf/create_base.urdf.xacro" />
+  <xacro:include filename="$(find custom_description)/description/create/urdf/create_2_gazebo.urdf.xacro" />
+  <create_base wheel_separation="0.235" base_diameter="0.3485">
+    <mesh filename="package://custom_description/description/create/meshes/create_2.dae" />
+  </create_base>
+  <range_sensor name="right_wall_sensor" parent="base_link" ros_topic="/right_wall_sensor_range" update_rate="10" min_range="0.0160" max_range="0.1" field_of_view="${2*3.1415926/180}" ray_count="1" type="infrared">
+    <origin xyz="0.09 -0.120 0.042" rpy="0 0 -1.0" />
+  </range_sensor>
+  <range_sensor name="front_sonar" parent="base_link" ros_topic="/front_range" update_rate="10" min_range="0.02" max_range="0.25" field_of_view="${80*3.1415926/180}" ray_count="1">
+    <origin xyz="0.15 0.0 0.042" rpy="0 0 0" />
+  </range_sensor>
+</robot>

@@ -1,0 +1,23 @@
+<launch>
+    <param name="/use_sim_time" value="true" />
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="use_sim_time" value="false" />
+        <arg name="debug" value="false" />
+        <arg name="world_name" value="$(find custom_description)/worlds/empty.world" />
+    </include>
+    <include file="$(find custom_description)/launch/robot.launch.xml">
+        <arg name="urdf_file" value="$(find xacro)/xacro.py '$(find custom_description)/description/kobuki/urdf/kobuki_sonar_4.xacro'"/>
+    </include>
+
+    <node pkg="custom_description" type="vfhSonarNode" name="vfhSonarNode" output="screen">
+        
+        <remap from="cmd_vel" to="mobile_base/commands/velocity" />
+    </node>
+
+    <node pkg="custom_description" type="showHist.py" name="showHist" output="screen">    
+    </node>
+
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find custom_description)/nav.rviz"/>
+
+</launch>

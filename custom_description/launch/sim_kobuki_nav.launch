@@ -1,0 +1,101 @@
+<launch>
+	<!--
+	<rosparam file="$(find config)/param/config.yaml" command="load"/><node pkg="comm_for_m3" name="uart_m3" type="uart_m3.py" output="screen" respawn="true"/><node pkg="device_monitor" name="led_controller" type="led_controller.py" output="screen" respawn="true"/>
+	-->
+	<!--<node pkg="robotstatus" name="robotstatus" type="start.py" respawn="true" />-->
+	<!--
+	<node pkg="voice" name="converse_node" type="converse.py" respawn="true"/><node pkg="device_monitor" name="power_monitor" type="power_monitor.py" output="screen" respawn="true"/>
+	-->
+	<!-- <include file="$(find comm_for_net)/launch/comm_for_net.launch"/> -->
+	<!--
+	<node pkg="version_m3" name="upgrade_m3" type="upgrade_m3.py" output="screen" respawn="true"/><node pkg="airkiss" name="airkiss" type="airkiss.py" output="screen" respawn="true" args="ra0"/><node pkg="device_monitor" name="button_monitor" type="button_monitor.py" output="screen" respawn="true"/>
+	-->
+	<!--<node pkg="system_state" name="power_off" type="power_off.py" output="screen" respawn="true" /><node pkg="system_state" name="power_on" type="power_on.py" output="screen" respawn="true"><rosparam file="$(find system_state)/param/idle.yaml" command="load" /></node>-->
+	<!--
+	<include file="$(find server_interactive)/launch/interactive.launch"/><include file="$(find app_interactive)/launch/interactive.launch"/>
+	-->
+	<!-- <node pkg="version_upgrade" name="upgrade" type="upgrade.py" respawn="true"/> -->
+	<!--<node pkg="system_monitor" name="system_monitor" type="system_monitor.py" output="screen" respawn="true" />-->
+	<!-- <node pkg="cvslam" name="cvslam" type="cvslam" output="screen" respawn="true"/> -->
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+		<arg name="use_sim_time" value="true" />
+		<arg name="debug" value="false" />
+		<arg name="world_name" value="$(find custom_description)/worlds/2room.world" />
+	</include>
+	<!-- spawn the robot -->
+	<include file="$(find custom_description)/launch/robot.launch.xml" >
+    <arg name="urdf_file" value="$(find xacro)/xacro.py '$(find custom_description)/description/create/urdf/create_2.urdf.xacro'"/>
+  </include>
+	<node pkg="tf" type="static_transform_publisher" name="odom_map_broadcaster" args="0 0 0 0 0 0 odom map 100" respawn="true" respawn_delay="5" />
+	<!-- <include file="$(find kobuki_node)/launch/minimal_withremap.launch" /> -->
+	<node pkg="nodelet" type="nodelet" name="cmd_vel_mux" args="load yocs_cmd_vel_mux/CmdVelMuxNodelet mobile_base_nodelet_manager" respawn="true" respawn_delay="5">
+		<param name="yaml_cfg_file" value="$(find custom_description)/param/cmd_vel_mux_safe.yaml" />
+		<remap from="cmd_vel_mux/input_cmd_vel" to="cmd_vel" />
+		<remap from="cmd_vel_mux/slow_down_cmd_vel" to="kobuki_safety_controller/slow_down_cmd_vel" />
+		<remap from="cmd_vel_mux/dock_cmd_vel" to="dock_drive/dock_cmd_vel" />
+		<remap from="cmd_vel_mux/safety_cmd_vel" to="kobuki_safety_controller/safety_cmd_vel" />
+		<remap from="cmd_vel_mux/output" to="mobile_base/commands/velocity" />
+	</node>
+	<!-- <include file="$(find kobuki_auto_docking)/launch/minimal.launch" /> -->
+	<!-- <node name="auto_dock_client" pkg="kobuki_auto_docking" type="AutoDockCommand.py" output="screen"/> -->
+	<node pkg="move_base" type="move_base" respawn="true" respawn_delay="5" name="move_base" output="screen" clear_params="true">
+		<rosparam file="$(find moveaction)/config/turtlecfg/costmap_common_params.yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find moveaction)/config/turtlecfg/costmap_common_params.yaml" command="load" ns="local_costmap" />
+		<rosparam file="$(find moveaction)/config/turtlecfg/local_costmap_params.yaml" command="load" />
+		<rosparam file="$(find moveaction)/config/turtlecfg/global_costmap_params.yaml" command="load" />
+		<rosparam file="$(find moveaction)/config/turtlecfg/move_base_params.yaml" command="load" />
+		<rosparam file="$(find moveaction)/config/turtlecfg/global_planner_params.yaml" command="load" />
+		<rosparam file="$(find moveaction)/config/turtlecfg/navfn_global_planner_params.yaml" command="load" />
+		<rosparam file="$(find moveaction)/config/turtlecfg/base_local_planner_params.yaml" command="load" />
+		<rosparam file="$(find moveaction)/config/turtlecfg/dwa_local_planner_params.yaml" command="load" />
+	</node>
+	<!-- <include file="$(find yocs_velocity_smoother)/launch/velocity_smoother.launch"/> -->
+
+	<include file="$(find map_service)/launch/map_service.launch" />
+	<param name="mapservice_server/daneel_costmap/robot_radius"  value="0.170"/>
+	<node pkg="nodelet" type="nodelet" name="kobuki_safety_controller" args="load kobuki_safety_controller/SafetyControllerNodelet mobile_base_nodelet_manager" respawn="true">
+		<remap from="kobuki_safety_controller/VelocityCommand" to="cmd_vel"/>
+		<remap from="kobuki_safety_controller/events/button" to="events/button"/>
+		<remap from="kobuki_safety_controller/events/bumper" to="events/bumper"/>
+		<remap from="kobuki_safety_controller/events/cliff" to="events/cliff"/>
+		<remap from="kobuki_safety_controller/events/wheel_drop" to="events/wheel_drop"/>
+		<remap from="kobuki_safety_controller/events/infrared" to="events/infrared"/>
+		<remap from="kobuki_safety_controller/events/slip" to="events/slip"/>
+		<remap from="kobuki_safety_controller/events/lift_up" to="events/lift_up"/>
+		<remap from="kobuki_safety_controller/events/logic_bump" to="events/logic_bump"/>
+		<param name="time_to_extend_bump_cliff_events" value="0.6"/>
+	</node>
+	<node name="stuckRecovery" pkg="moveaction" type="stuckRecovery" output="screen">
+		<param name="oscillation_distance" type="double" value="0.8" />
+		<param name="oscillation_timeout" type="double" value="60.0" />
+		<param name="recovery_times" type="double" value="6" />
+		<param name="least_clean_time" type="double" value="120" />
+	</node>
+	<node pkg="nodelet" type="nodelet" name="kobuki_bumper2pc" args="load kobuki_bumper2pc/Bumper2PcNodelet mobile_base_nodelet_manager" respawn="true" respawn_delay="5">
+		<param name="pointcloud_radius" value="0.20" />
+		<param name="infra_max" value="250" />
+		<remap from="kobuki_bumper2pc/pointcloud" to="mobile_base/sensors/bumper_pointcloud" />
+		<remap from="kobuki_bumper2pc/core_sensors" to="mobile_base/sensors/core" />
+		<remap from="kobuki_bumper2pc/logic_sensors" to="logic_sensor/core" />
+	</node>
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find moveaction)/maps/blank.yaml" respawn="true" respawn_delay="5" />
+	<node name="cleanMove" pkg="moveaction" type="cleanMoveServer" output="screen" respawn="true" respawn_delay="5">
+		<param name="linear_vel" type="double" value="0.25" />
+		<param name="rotate_vel" type="double" value="0.8" />
+		<param name="r_param" type="double" value="0.5" />
+		<param name="d_param" type="double" value="1.0" />
+	</node>
+	<node name="straightMoveWithPID" pkg="moveaction" type="straightMove.py" respawn="true" respawn_delay="5" />
+	<!--<node name="clean_voice" pkg="moveaction" type="clean_voice.py" output="screen" respawn="true" respawn_delay="5" />-->
+	<node name="snakeMove" pkg="moveaction" type="snakeMoveService" output="screen" respawn="true" respawn_delay="5">
+		<param name="obstacle_dis" type="double" value="0.4" />
+	</node>
+	<node name="pathPlan" pkg="moveaction" type="fullCoveragePathPlan" output="screen" respawn="true" respawn_delay="5" />
+	<node pkg="moveaction" type="remoteControl.py" name="remote_command" output="screen" respawn="true" respawn_delay="5" />
+	<!--<node name="mapinteract" pkg="map_service" type="interactWithApp.py" output="screen" />-->
+	<!--<include file="$(find moveaction)/launch/slip.launch" />-->
+	<include file="$(find kobuki_random_walker)/launch/random_walker_app.launch" />
+	<!--<node pkg="moveaction" name="factor_calibration" type="factor_calibration.py" output="screen" respawn="true" />-->
+	<node name="need_stop_event" pkg="moveaction" type="need_stop_event.py" output="screen" respawn="true" respawn_delay="5" />
+	<node pkg="rviz" name="view" type="rviz" args="-d $(find custom_description)/simulation.rviz" />
+</launch>

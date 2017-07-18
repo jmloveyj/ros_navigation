@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<robot name="kobuki_standalone" 
+	xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor" 
+	xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller" 
+	xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface" 
+	xmlns:xacro="http://ros.org/wiki/xacro">
+	<!-- Defines the kobuki component tag. -->
+	<xacro:include filename="$(find custom_description)/description/kobuki/urdf/kobuki.urdf.xacro" />
+	<kobuki/>
+	<xacro:include filename="$(find custom_description)/description/range_sensor.urdf.xacro" />
+  <range_sensor name="right_wall_sensor" parent="base_link" ros_topic="/right_wall_sensor_range" update_rate="10" min_range="0.0160" max_range="0.2" field_of_view="${2*M_PI/180}" ray_count="1" type="infrared">
+    <origin xyz="0.09 -0.140 0.042" rpy="0 0 -${M_PI/2}" />
+  </range_sensor>
+  <range_sensor name="front_sonar" parent="base_link" ros_topic="/front_range" update_rate="10" min_range="0.02" max_range="0.25" field_of_view="${80*M_PI/180}" ray_count="1">
+    <origin xyz="0.15 0.0 0.042" rpy="0 0 0" />
+  </range_sensor>
+</robot>

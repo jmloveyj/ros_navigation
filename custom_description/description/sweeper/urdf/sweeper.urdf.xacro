@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<robot name="sweeper" 
+  xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find custom_description)/description/sweeper/urdf/sweeper_base.urdf.xacro" />
+  <sweeper_base wheel_separation="0.74" wheel_radius="0.15" base_diameter="0.3485">
+
+  </sweeper_base>
+  <range_sensor name="front_right_sensor" parent="base_link" ros_topic="/front_right_range" update_rate="10" min_range="0.0160" max_range="2" field_of_view="${60*3.1415926/180}" ray_count="1" type="ultrasound">
+    <origin xyz="1.41 -0.2 0" rpy="0 0 0" />
+  </range_sensor>
+  <range_sensor name="front_left_sensor" parent="base_link" ros_topic="/front_left_range" update_rate="10" min_range="0.0160" max_range="2" field_of_view="${60*3.1415926/180}" ray_count="1" type="ultrasound">
+    <origin xyz="1.41 0.20 0" rpy="0 0 0" />
+  </range_sensor>
+  <range_sensor name="left_sensor" parent="base_link" ros_topic="/left_range" update_rate="10" min_range="0.02" max_range="2" field_of_view="${30*3.1415926/180}" ray_count="1">
+    <origin xyz="0.88 0.76 0.26" rpy="0 0 ${90*3.1415926/180}" />
+  </range_sensor>
+    <range_sensor name="right_sensor" parent="base_link" ros_topic="/right_range" update_rate="10" min_range="0.02" max_range="2" field_of_view="${30*3.1415926/180}" ray_count="1">
+    <origin xyz="0.88 -0.76 0.26" rpy="0 0 ${-90*3.1415926/180}" />
+  </range_sensor>
+  <sensor_kinect parent="base_link">
+    <origin xyz="1.45 0 0.58" rpy="0 0.261 0" />
+  </sensor_kinect>
+
+  
+	<!--  lidar -->
+	<sensor_rplidar parent="base_link">
+		<origin xyz="1.2 0.0 1.55" rpy="0 0.0 0.0" /> 
+	</sensor_rplidar>
+</robot>

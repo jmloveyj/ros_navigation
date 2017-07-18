@@ -1,0 +1,19 @@
+# cmd vel mux config for the random walker app
+subscribers:
+  - name:        "Safe reactive controller"
+    topic:       "safety_controller"
+    timeout:     0.2
+    priority:    3
+  - name:        "move base controller"
+    topic:       "move_base_controller"
+    timeout:     0.2
+    priority:    2
+  - name:        "remote control"
+    topic:       "remotControl"
+    timeout:     0.2
+    priority:    1
+  - name:        "follow_edge"
+    topic:       "follow_edge"
+    timeout:     0.2
+    priority:    0
+publisher:       "output/cmd_vel"

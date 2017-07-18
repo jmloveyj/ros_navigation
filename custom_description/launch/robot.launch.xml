@@ -1,0 +1,18 @@
+<!--
+  Spawns Kobuki inside a Gazebo simulation
+  -->
+<launch>
+  <arg name="robot_name" value="mobile_base"/>
+  <arg name="urdf_file" default="$(find xacro)/xacro.py '$(find custom_description)/description/kobuki/urdf/kobuki_standalone.urdf.xacro'"/>
+  <param name="robot_description" command="$(arg urdf_file)"/>
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_$(arg robot_name)" 
+        args="-x 0.0 -y 1.0 -z 0.0  -unpause -urdf -param robot_description -model $(arg robot_name)" respawn="false" output="screen">
+  </node>
+  
+   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0" />
+  </node> 
+  <!-- <node pkg="tf" type="static_transform_publisher" name="base_link_camera_broadcaster" args="0 0 0 0 0 0 camera_link base_link 100" /> -->
+  
+  <node pkg="nodelet" type="nodelet" name="$(arg robot_name)_nodelet_manager" args="manager" />
+</launch>

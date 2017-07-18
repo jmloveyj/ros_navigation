@@ -1,0 +1,19 @@
+<launch>
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="use_sim_time" value="true" />
+        <arg name="debug" value="false" />
+        <arg name="world_name" value="$(find custom_description)/worlds/mall.world" />
+    </include>
+    <!-- spawn the robot -->
+    <include file="$(find custom_description)/launch/robot.launch.xml">
+        <arg name="urdf_file" value="$(find xacro)/xacro.py '$(find custom_description)/description/sweeper/urdf/sweeper.urdf.xacro'"/>
+    </include>
+
+    <node pkg="custom_description" type="keyControl" name="keyControl" launch-prefix="xterm -e">
+        <param name="scale_linear" value = "1.5"/>
+        <param name="scale_angular" value= "0.6"/>
+        <remap from="keyControl/cmd_vel" to="mobile_base/commands/velocity" />
+    </node>
+
+    <node pkg="rviz" name="view" type="rviz" args="-d $(find custom_description)/sim_sweeper.rviz" />
+</launch>

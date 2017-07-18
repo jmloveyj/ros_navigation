@@ -1,0 +1,96 @@
+<launch>
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="use_sim_time" value="true" />
+        <arg name="debug" value="false" />
+        <!--<arg name="world_name" value="$(find custom_description)/worlds/2room.world" />-->
+    </include>
+    <!-- spawn the robot -->
+    <include file="$(find custom_description)/launch/robot.launch.xml">
+        <arg name="urdf_file" value="$(find xacro)/xacro.py '$(find custom_description)/description/kobuki/urdf/kobuki_standalone_kinect.urdf.xacro'"/>
+    </include>
+    <node pkg="tf" type="static_transform_publisher" name="odom_map_broadcaster" args="0 0 0 0 0 0 odom map 100" respawn="true" respawn_delay="5" />
+
+    <node pkg="nodelet" type="nodelet" name="cmd_vel_mux" args="load yocs_cmd_vel_mux/CmdVelMuxNodelet mobile_base_nodelet_manager" respawn="true" respawn_delay="5">
+        <param name="yaml_cfg_file" value="$(find custom_description)/param/cmd_vel_mux_safe.yaml" />
+        <remap from="cmd_vel_mux/input_cmd_vel" to="cmd_vel" />
+        <remap from="cmd_vel_mux/slow_down_cmd_vel" to="kobuki_safety_controller/slow_down_cmd_vel" />
+        <remap from="cmd_vel_mux/dock_cmd_vel" to="dock_drive/dock_cmd_vel" />
+        <remap from="cmd_vel_mux/safety_cmd_vel" to="kobuki_safety_controller/safety_cmd_vel" />
+        <remap from="cmd_vel_mux/output" to="mobile_base/commands/velocity" />
+    </node>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find custom_description)/maps/blank.yaml" />
+    <arg name="odom_frame_id" default="/odom" />
+    <arg name="base_frame_id" default="/base_link" />
+    <arg name="global_frame_id" default="/map" />
+    <arg name="scan_topic" default="/scan"/>>
+    <arg name="custom_param_file" default="$(find custom_description)/param/dummy.yaml" />
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+        <rosparam file="$(find custom_description)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find custom_description)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find custom_description)/param/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find custom_description)/param/global_costmap_params.yaml" command="load" />
+        <rosparam file="$(find custom_description)/param/dwa_local_planner_params.yaml" command="load" />
+        <rosparam file="$(find custom_description)/param/global_planner_params.yaml" command="load" />
+        <rosparam file="$(find custom_description)/param/move_base_params.yaml" command="load" />
+        <rosparam file="$(find custom_description)/param/navfn_global_planner_params.yaml" command="load" />
+        <!-- external params file that could be loaded into the move_base namespace -->
+        <rosparam file="$(arg custom_param_file)" command="load" />
+        <!-- reset frame_id parameters using user input data -->
+        <param name="global_costmap/global_frame" value="$(arg global_frame_id)" />
+        <param name="global_costmap/robot_base_frame" value="$(arg base_frame_id)" />
+        <param name="local_costmap/global_frame" value="$(arg odom_frame_id)" />
+        <param name="local_costmap/robot_base_frame" value="$(arg base_frame_id)" />
+        <param name="DWAPlannerROS/global_frame_id" value="$(arg odom_frame_id)" />
+        <remap from="cmd_vel" to="cmd_vel_mux/move_base_controller" />
+    </node>
+    <node pkg="depthimage_to_laserscan" type ="depthimage_to_laserscan" name="depth2laser">
+        <param name="scan_height" value="0.2"/>
+        <param name="range_min" value="0.6"/>
+        <param name="range_max" value="4.5"/>
+        <remap from="image" to="camera/depth/image_raw"/>
+    </node>
+    <node pkg="custom_description" type="keyControl" name="keyControl" launch-prefix="xterm -e">
+        <param name="scale_linear" value = "0.3"/>
+        <param name="scale_angular" value= "0.6"/>
+        <remap from="keyControl/cmd_vel" to="cmd_vel_mux/remote" />
+    </node>
+
+  <!--<node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+    <param name="base_frame" value="$(arg base_frame_id)"/>
+    <param name="odom_frame" value="$(arg odom_frame_id)"/>
+    <param name="map_update_interval" value="5.0"/>
+    <param name="maxUrange" value="5.0"/>
+    <param name="maxRange" value="4.5"/>
+    <param name="sigma" value="0.05"/>
+    <param name="kernelSize" value="1"/>
+    <param name="lstep" value="0.05"/>
+    <param name="astep" value="0.05"/>
+    <param name="iterations" value="5"/>
+    <param name="lsigma" value="0.075"/>
+    <param name="ogain" value="3.0"/>
+    <param name="lskip" value="0"/>
+    <param name="minimumScore" value="600"/>
+    <param name="srr" value="0.01"/>
+    <param name="srt" value="0.02"/>
+    <param name="str" value="0.01"/>
+    <param name="stt" value="0.02"/>
+    <param name="linearUpdate" value="0.5"/>
+    <param name="angularUpdate" value="0.436"/>
+    <param name="temporalUpdate" value="-1.0"/>
+    <param name="resampleThreshold" value="0.5"/>
+    <param name="particles" value="80"/>
+    <param name="xmin" value="-15.0"/>
+    <param name="ymin" value="-15.0"/>
+    <param name="xmax" value="15.0"/>
+    <param name="ymax" value="15.0"/>
+
+    <param name="delta" value="0.05"/>
+    <param name="llsamplerange" value="0.01"/>
+    <param name="llsamplestep" value="0.01"/>
+    <param name="lasamplerange" value="0.005"/>
+    <param name="lasamplestep" value="0.005"/>
+    <remap from="scan" to="$(arg scan_topic)"/>
+  </node>-->
+
+    <node pkg="rviz" name="view" type="rviz" args="-d $(find custom_description)/simulation_kinect.rviz" />
+</launch>

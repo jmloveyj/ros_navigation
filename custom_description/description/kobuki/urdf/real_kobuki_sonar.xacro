@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki/xacro" name="daneel">
+	<!--
+	Base link is set at the bottom of the base mould.
+	This is done to be compatible with the way base link
+	was configured for turtlebot 1. Refer to
+	
+	https://github.com/turtlebot/turtlebot/issues/40
+	
+	To put the base link at the more oft used wheel
+	axis, set the z-distance from the base_footprint
+	to 0.352.
+	-->
+	<link name="base_link">
+		<visual>
+			<geometry>
+				<cylinder length="0.08" radius="0.2" />
+			</geometry>
+			<material name="blue">
+				<color rgba="0 0 .8 1" />
+			</material>
+		</visual>
+		<collision>
+			<geometry>
+				<cylinder length="0.1" radius="0.2" />
+			</geometry>
+		</collision>
+		<inertial>
+			<mass value="10" />
+			<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+		</inertial>
+	</link>
+	<link name="base_footprint">
+	</link>
+	<joint name="base_joint" type="fixed">
+		<parent link="base_link" />
+		<child link="base_footprint" />
+		<origin xyz="0 0 0" />
+	</joint>
+	<link name="front_sonar_link">
+		<visual>
+			<geometry>
+				<cylinder length="0.03" radius="0.05" />
+			</geometry>
+			<origin rpy="0 1.57075 0" xyz="0 0 0" />
+			<material name="white">
+				<color rgba="1 1 1 1" />
+			</material>
+		</visual>
+		<collision>
+			<geometry>
+				<cylinder length="0.03" radius="0.05" />
+			</geometry>
+			<origin rpy="0 1.57075 0" xyz="0 0 0" />
+		</collision>
+		<inertial>
+			<mass value="10" />
+			<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+		</inertial>
+	</link>
+	<joint name="front_sonar_joint" type="fixed">
+		<parent link="base_link" />
+		<child link="front_sonar_link" />
+		<origin xyz="0.16 0 0" />
+	</joint>
+	<link name="right_sonar_link">
+		<visual>
+			<geometry>
+				<cylinder length="0.03" radius="0.05" />
+			</geometry>
+			<origin rpy="0 1.57075 0" xyz="0 0 0" />
+			<material name="white">
+				<color rgba="1 1 1 1" />
+			</material>
+		</visual>
+		<collision>
+			<geometry>
+				<cylinder length="0.05" radius="0.05" />
+			</geometry>
+			<origin rpy="0 1.57075 0" xyz="0 0 0" />
+		</collision>
+		<inertial>
+			<mass value="10" />
+			<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+		</inertial>
+	</link>
+	<joint name="right_sonar_joint" type="fixed">
+		<parent link="base_link" />
+		<child link="right_sonar_link" />
+		<origin xyz="0.07 -0.13 0" rpy="0 0 ${-90*3.1415926/180}" />
+	</joint>
+	<link name="front_right_sonar_link">
+		<visual>
+			<geometry>
+				<cylinder length="0.03" radius="0.05" />
+			</geometry>
+			<origin rpy="0 1.57075 0" xyz="0 0 0" />
+			<material name="white">
+				<color rgba="1 1 1 1" />
+			</material>
+		</visual>
+		<collision>
+			<geometry>
+				<cylinder length="0.03" radius="0.05" />
+			</geometry>
+			<origin rpy="0 1.57075 0.52" xyz="0 0 0" />
+		</collision>
+		<inertial>
+			<mass value="10" />
+			<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+		</inertial>
+	</link>
+	<joint name="front_right_sonar_joint" type="fixed">
+		<parent link="base_link" />
+		<child link="front_right_sonar_link" />
+		<origin xyz="0.14 -0.11667 0" rpy="0 0 ${-60*3.1415926/180}" />
+	</joint>
+</robot>
